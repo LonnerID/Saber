@@ -1,0 +1,38 @@
+{
+ "status": "success",
+ "updated": "2026-10-22",
+ "document": "SABER-ATURAN",
+ "version": "2.0",
+ "sections": [
+  {
+   "section_no": 0,
+   "title": "SABER – Aturan Perhitungan & Kebijakan (Account Takeover MVP, mode HYBRID)",
+   "content": "- Dokumen: SABER-ATURAN\n- Versi: 2.0 (22 Okt 2026)\n- Pemilik: Kelompok 1 – SABER (Security Agent for Banking Emergency Response)\n- Dipakai oleh: Agent Klasifikasi, Investigasi, Keputusan, Respons, Monitoring, Verifikasi\n- Aturan utama: dokumen ini adalah satu-satunya sumber kebenaran untuk skor risiko, tingkat keparahan, keyakinan, jenis insiden, SLA, dan kebijakan tindakan SABER. Jangan memakai angka di luar dokumen ini.\n- Pengetahuan tentang serangan pengambilalihan akun dan langkah penanganannya ada di dokumen terpisah SABER-PENGETAHUAN-ATO."
+  },
+  {
+   "section_no": 1,
+   "title": "Bagian 1. Matriks Tingkat Keparahan SABER",
+   "content": "| Skor risiko | Tingkat (severity) | Prioritas | Penanganan |\n|---|---|---|---|\n| 0–39 | LOW | P4 | Tiket dan pemantauan otomatis |\n| 40–69 | MEDIUM | P3 | Tiket otomatis; ditinjau analis bila perlu |\n| 70–84 | HIGH | P2 | Prioritas tinggi; tindakan sensitif wajib persetujuan |\n| 85–100 | CRITICAL | P1 | Tim SOC menangani segera; tindakan berdampak tinggi wajib persetujuan |\n\nAturan dalam kalimat:\n- Skor risiko di bawah 40 adalah LOW dengan prioritas P4.\n- Skor risiko 40 sampai 69 adalah MEDIUM dengan prioritas P3.\n- Skor risiko 70 sampai 84 adalah HIGH dengan prioritas P2.\n- Skor risiko 85 atau lebih adalah CRITICAL dengan prioritas P1."
+  },
+  {
+   "section_no": 2,
+   "title": "Bagian 2. Aturan Skor Risiko SABER",
+   "content": "Skor dimulai dari 0, lalu ditambah poin untuk setiap indikator yang terpenuhi. Nilai maksimum 100.\n\n| Indikator | Poin | Kapan terpenuhi |\n|---|---|---|\n| MALICIOUS_IP | +30 | Reputasi IP = MALICIOUS |\n| UNUSUAL_LOCATION | +15 | Lokasi login berbeda dari lokasi normal user |\n| NEW_DEVICE | +15 | Perangkat login tidak ada di daftar perangkat biasa user |\n| MULTIPLE_FAILED_LOGIN | +10 | Gagal login 3 kali atau lebih |\n| HIGH_VALUE_TRANSACTION | +15 | Nominal transaksi melebihi batas transaksi wajar user |\n| REPEAT_VICTIM | +7 | User pernah punya insiden ACCOUNT_TAKEOVER atau severity CRITICAL |\n| OUTSIDE_LOGIN_WINDOW | +5 | Jam login di luar jam login biasa user |\n\nDua tahap perhitungan:\n- Skor awal (initial_risk, Agent Klasifikasi): dihitung dari indikator hasil penilaian log (Bagian 5), belum diverifikasi. MALICIOUS_IP dan HIGH_VALUE_TRANSACTION belum dihitung di tahap ini.\n- Skor akhir (risk_score, Agent Keputusan): dihitung HANYA dari indikator berstatus VERIFIED oleh Agent Investigasi. Skor akhir inilah yang menentukan tingkat keparahan, prioritas, dan tindakan.\n- Indikator berstatus NOT_AVAILABLE (datanya belum ada) tidak diberi poin."
+  },
+  {
+   "section_no": 3,
+   "title": "Bagian 3. Aturan Tingkat Keyakinan SABER",
+   "content": "- Keyakinan (confidence) = 0,70 + (0,04 × jumlah indikator VERIFIED), maksimum 0,99.\n- Kurangi 0,10 untuk setiap indikator yang terdeteksi Agent Klasifikasi tetapi hasil pemeriksaan Agent Investigasi NOT_VERIFIED.\n- Indikator tambahan yang baru diperiksa Agent Investigasi (bukan temuan Agent Klasifikasi) dan berstatus NOT_VERIFIED tidak mengurangi keyakinan.\n- Indikator NOT_AVAILABLE tidak dihitung dan tidak mengurangi keyakinan."
+  },
+  {
+   "section_no": 4,
+   "title": "Bagian 4. Aturan Jenis Insiden SABER",
+   "content": "- ACCOUNT_TAKEOVER jika login berhasil (successful_login = true) DAN ada minimal 3 indikator dari daftar: UNUSUAL_LOCATION, NEW_DEVICE, MULTIPLE_FAILED_LOGIN, MALICIOUS_IP, HIGH_VALUE_TRANSACTION.\n- Selain itu: SUSPICIOUS_LOGIN.\n- OUTSIDE_LOGIN_WINDOW dan REPEAT_VICTIM tidak ikut dihitung untuk syarat minimal 3 indikator."
+  },
+  {
+   "section_no": 5,
+   "title": "Bagian 5. Aturan Deteksi dari Log Login",
+   "content": "Data masukan adalah log login mentah dari SRM (log_id, user_id, timestamp, ip_address, device, location, result, failure_reason) dan profil akun dari form Akun (lokasi normal, perangkat biasa, jam login awal dan akhir, status akun). SABER sendiri yang menilai log; tidak ada penandaan dari sistem lain yang dipakai.\n\nLangkah menilai:\n1. Kelompokkan log per user_id dan urutkan berdasarkan timestamp.\n2. Peristiwa yang dinilai adalah setiap login dengan result = SUCCESS.\n3. Untuk setiap login SUCCESS, tentukan indikator:\n\n| Indikator | Cara menentukan dari log dan profil |\n|---|---|\n| MULTIPLE_FAILED_LOGIN | Jumlah log FAILED milik user yang sama dalam 30 menit sebelum login SUCCESS tersebut >= 3. failed_attempts = jumlah itu. |\n| NEW_DEVICE | Perangkat login tidak ada di daftar perangkat biasa di profil DAN tidak pernah dipakai pada login SUCCESS sebelumnya oleh user yang sama. |\n| UNUSUAL_LOCATION | Kota pada lokasi login berbeda dengan lokasi normal di profil. |\n| OUTSIDE_LOGIN_WINDOW | Jam login (WIB, +07:00) berada di luar jam login awal–akhir di profil. |\n\n4. Login SUCCESS dianggap mencurigakan dan perlu dijadikan peringatan bila MULTIPLE_FAILED_LOGIN terpenuhi DAN minimal salah satu dari NEW_DEVICE atau UNUSUAL_LOCATION terpenuhi.\n5. Jika ada lebih dari satu login mencurigakan, proses yang timestamp-nya paling baru.\n6. Jika profil user tidak ada, indikator yang butuh profil (NEW_DEVICE, UNUSUAL_LOCATION, OUTSIDE_LOGIN_WINDOW) berstatus NOT_AVAILABLE.\n7. Login FAILED berulang tanpa login SUCCESS sesudahnya bukan pengambilalihan akun; catat sebagai percobaan gagal dan tidak dijadikan peringatan.\n\nAturan pembentukan peringatan:\n- alert_id = log_id dari login SUCCESS yang dinilai\n- event_type = SUSPICIOUS_LOGIN\n- successful_login = true\n- evidence_log_ids = log_id login SUCCESS tersebut ditambah log_id semua login FAILED yang dihitung\n- incident_id sementara = INC-YYYYMMDD-XXXX (tanggal dari timestamp login, XXXX = 4 digit terakhir angka di log_id)"
+  }
+ ]
+}

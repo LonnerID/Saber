@@ -1,0 +1,28 @@
+{
+ "status": "success",
+ "updated": "2026-10-22",
+ "document": "SABER-ATURAN",
+ "version": "2.0",
+ "sections": [
+  {
+   "section_no": 6,
+   "title": "Bagian 6. Matriks Eskalasi dan SLA SABER",
+   "content": "| Prioritas | Penanggung jawab awal | Batas konfirmasi | Batas penyelesaian | Eskalasi 1 (batas konfirmasi terlewati) | Eskalasi 2 |\n|---|---|---|---|---|---|\n| P1 (CRITICAL) | SOC L2 | 15 menit | 4 jam | SOC L3 | Security Manager |\n| P2 (HIGH) | SOC L2 | 30 menit | 8 jam | SOC L3 | Security Manager |\n| P3 (MEDIUM) | SOC L1 | 4 jam | 24 jam | SOC L2 | SOC L3 |\n| P4 (LOW) | SOC L1 | 24 jam | 72 jam | SOC L2 | - |\n\nStatus SLA:\n- Pengingat dikirim saat 50% waktu konfirmasi sudah lewat tanpa konfirmasi.\n- WARNING saat sisa waktu 30% atau kurang.\n- BREACH saat waktu habis; insiden dieskalasi ke tingkat berikutnya.\n- Selain itu ON_TRACK."
+  },
+  {
+   "section_no": 7,
+   "title": "Bagian 7. Kebijakan Tindakan SABER",
+   "content": "| Tindakan | Mode | Keterangan |\n|---|---|---|\n| CREATE_INCIDENT | AUTO | Buat insiden |\n| ASSIGN_SOC_L2 / ASSIGN_SOC_L1 | AUTO | Tetapkan penanggung jawab |\n| ATTACH_EVIDENCE | AUTO | Lampirkan bukti |\n| SEND_NOTIFICATION | AUTO | Kirim notifikasi ke SOC |\n| BLOCK_IP | AUTO | Blokir IP berreputasi MALICIOUS |\n| FORCE_LOGOUT_SESSION | AUTO | Akhiri sesi aktif yang mencurigakan |\n| FREEZE_ACCOUNT | HUMAN_APPROVAL | Bekukan akun, hanya setelah disetujui |\n| BLOCK_TRANSACTION | HUMAN_APPROVAL | Tahan/batalkan transaksi, hanya setelah disetujui |\n| DISABLE_ACCESS | HUMAN_APPROVAL | Nonaktifkan akses user, hanya setelah disetujui |\n| ESCALATE | AUTO | Eskalasi saat batas SLA terlewati |\n\nAturan keras:\n- FREEZE_ACCOUNT, BLOCK_TRANSACTION, dan DISABLE_ACCESS TIDAK PERNAH dijalankan tanpa persetujuan manusia berstatus APPROVED.\n- Pemberi persetujuan: SOC L2 Lead atau Security Manager.\n- Jika persetujuan REJECTED, tindakan tidak dijalankan dan alasannya dicatat."
+  },
+  {
+   "section_no": 8,
+   "title": "Bagian 8. Siklus Hidup Insiden SABER",
+   "content": "OPEN → ASSIGNED → INVESTIGATING → (PENDING_APPROVAL) → RESOLVED → CLOSED, atau REOPENED bila verifikasi gagal."
+  },
+  {
+   "section_no": 9,
+   "title": "Bagian 9. Sumber Data SABER (mode HYBRID)",
+   "content": "| Data | Sumber | Status |\n|---|---|---|\n| Log login mentah | SRM form Log Login, lewat PF SABER - SUMMARY | REAL |\n| Profil user (lokasi normal, perangkat biasa, jam login, status akun) | SRM form Akun, lewat PF SABER - SUMMARY | REAL |\n| Reputasi IP | Belum ada sumber | NOT_AVAILABLE |\n| Riwayat insiden | Belum ada sumber | NOT_AVAILABLE |\n| Transaksi | Belum ada sumber | NOT_AVAILABLE |\n\n- Mode HYBRID berarti: data yang tersedia diambil nyata dari SRM, data yang belum punya sumber ditulis NOT_AVAILABLE, dan tindakan belum terhubung ke sistem.\n- Hasil SUMMARY: {\"status\":\"success\",\"log_count\":N,\"logs\":[{\"log_id\",\"user_id\",\"timestamp\",\"ip_address\",\"device\",\"location\",\"result\",\"failure_reason\"}],\"profiles\":{\"<user_id>\":{...}}}, biasanya berada di value.output.output. Penilaian log dilakukan sesuai Bagian 5. User yang tidak ada di profiles berarti profilnya NOT_AVAILABLE.\n- Indikator yang datanya NOT_AVAILABLE (MALICIOUS_IP, REPEAT_VICTIM, HIGH_VALUE_TRANSACTION selama sumbernya belum ada) berstatus NOT_AVAILABLE, tidak diberi poin, dan tidak mengurangi keyakinan.\n- Tindakan (buat insiden, blokir IP, bekukan akun, dll.) belum terhubung ke sistem. Tulis sebagai rencana tindakan dengan status NOT_EXECUTED dan jangan mengaku sudah dijalankan.\n- Jangan pernah mengisi data yang tidak berasal dari SRM atau dari dokumen ini. Jika data tidak tersedia, tulis NOT_AVAILABLE."
+  }
+ ]
+}

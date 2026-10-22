@@ -1,0 +1,23 @@
+{
+ "status": "success",
+ "updated": "2026-10-22",
+ "document": "SABER-PENGETAHUAN-ATO",
+ "version": "1.0",
+ "sections": [
+  {
+   "section_no": 6,
+   "title": "Bagian 6. Playbook penanganan ATO",
+   "content": "1. Validasi peringatan dan buat konteks insiden.\n2. Verifikasi profil normal nasabah (lokasi, perangkat, jam login, pola transaksi).\n3. Periksa reputasi IP dan riwayat insiden nasabah.\n4. Hitung skor, tingkat keparahan, dan keyakinan memakai SABER-ATURAN.\n5. Penahanan cepat (tindakan AUTO sesuai SABER-ATURAN): buat insiden, tetapkan penanggung jawab, lampirkan bukti, blokir IP, akhiri sesi aktif, beri tahu SOC.\n6. Tindakan berdampak tinggi dengan persetujuan manusia: bekukan akun, tahan transaksi, nonaktifkan akses.\n7. Pantau SLA dan eskalasi sesuai SABER-ATURAN.\n8. Pemulihan: hubungi nasabah lewat kanal resmi yang terdaftar, minta penggantian kata sandi, daftarkan ulang perangkat, aktifkan atau perkuat MFA, periksa perubahan data akun yang dibuat pelaku dan kembalikan ke data asli.\n9. Verifikasi: IP terblokir, sesi berakhir, akun beku bila disetujui, transaksi tertahan, tidak ada login baru dari IP atau perangkat yang sama.\n10. Penutupan: tulis akar masalah, tindakan yang diambil, dan hasil verifikasi. Jika verifikasi gagal, buka kembali insiden dan ulangi dari langkah 5."
+  },
+  {
+   "section_no": 7,
+   "title": "Bagian 7. Komunikasi dengan nasabah",
+   "content": "- Hubungi nasabah hanya lewat kontak resmi yang terdaftar sebelum kejadian, bukan kontak yang baru diubah.\n- Jangan pernah meminta kata sandi, PIN, atau OTP kepada nasabah.\n- Jelaskan bahwa ada aktivitas tidak biasa, langkah pengamanan yang sudah diambil, dan apa yang perlu dilakukan nasabah (ganti kata sandi, periksa perangkat dari malware, waspadai telepon yang mengaku petugas bank).\n- Catat waktu dan hasil kontak sebagai bukti di insiden."
+  },
+  {
+   "section_no": 8,
+   "title": "Bagian 8. Pencegahan",
+   "content": "- Batasi jumlah percobaan login dan kunci sementara akun setelah gagal berulang.\n- Wajibkan MFA, terutama untuk login dari perangkat baru dan transaksi besar.\n- Ikat akun ke perangkat terdaftar (device binding).\n- Kirim notifikasi ke nasabah untuk login dari perangkat atau lokasi baru.\n- Pantau IP yang mencoba banyak akun sekaligus.\n- Edukasi nasabah tentang phishing dan penipuan yang mengaku petugas bank."
+  }
+ ]
+}
